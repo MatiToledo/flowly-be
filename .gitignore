@@ -1,0 +1,7 @@
+node_modules
+build
+.husky
+coverage
+.nyc_output
+.vscode
+.env
