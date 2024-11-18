@@ -1,4 +1,5 @@
-import { sequelize } from "./connect";
+import "../../model";
+import { sequelize } from ".";
 
 const args = process.argv.slice(2);
 const force = args.includes("--force");

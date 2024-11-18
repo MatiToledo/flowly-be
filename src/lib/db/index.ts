@@ -15,7 +15,9 @@ const devConfig: Options = {
     ssl: false,
   },
   timezone: "UTC",
+  logging: false,
 };
+
 const prodConfig: Options = {
   dialect: "postgres",
   host: process.env.DB_PROD_HOST,
@@ -30,9 +32,10 @@ const prodConfig: Options = {
     },
   },
   timezone: "UTC",
+  logging: false,
 };
-export const sequelize = new Sequelize(prodEnv ? prodConfig : devConfig);
-export async function initDabase() {
+
+async function initDatabase() {
   try {
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
@@ -40,3 +43,7 @@ export async function initDabase() {
     console.error("Unable to connect to the database:", error);
   }
 }
+
+const sequelize = new Sequelize(prodEnv ? prodConfig : devConfig);
+
+export { sequelize, initDatabase };
