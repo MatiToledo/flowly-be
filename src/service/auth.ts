@@ -1,5 +1,5 @@
 import { Transaction } from "sequelize";
-import { Auth, User } from "../model";
+import { Auth, Branch, User } from "../model";
 import { AuthRepositoryImpl } from "../repository/auth";
 import { generateToken } from "../utils/jwt";
 import { hashPassword, verifyPassword } from "../utils/password";
@@ -8,6 +8,7 @@ import { BranchServiceImpl } from "./branch";
 import { UserServiceImpl } from "./user";
 import { UserBranchServiceImpl } from "./userBranch";
 import { UUID } from "crypto";
+import { DateTime } from "luxon";
 
 export class AuthServiceImpl implements AuthService {
   private repository = new AuthRepositoryImpl();
@@ -15,7 +16,7 @@ export class AuthServiceImpl implements AuthService {
   private branchService = new BranchServiceImpl();
   private userBranchService = new UserBranchServiceImpl();
   async logUp(
-    data: { Auth: Partial<Auth>; User: Partial<User> },
+    data: { Auth: Partial<Auth>; User: Partial<User>; Branch: Partial<Branch> },
     transaction: Transaction,
   ): Promise<User> {
     await this.userService.throwIfAlreadyExists({
@@ -28,15 +29,14 @@ export class AuthServiceImpl implements AuthService {
 
     const user = await this.userService.create({ ...data.User, AuthId: auth.id }, transaction);
 
-    if (data.User.branchName) {
-      await this.branchService.create(
-        { name: data.User.branchName, timeZone: data.User.timeZone },
-        user.id,
-        transaction,
-      );
+    if (data.Branch.name) {
+      data.Branch.closing = DateTime.fromISO(data.Branch.closing).toFormat("HH:mm");
+      data.Branch.opening = DateTime.fromISO(data.Branch.opening).toFormat("HH:mm");
+
+      await this.branchService.create(data.Branch, user.id, transaction);
     } else {
       await this.userBranchService.create(
-        { UserId: user.id, BranchId: data.User.BranchId },
+        { UserId: user.id, BranchId: data.Branch.id },
         transaction,
       );
     }

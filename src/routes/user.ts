@@ -11,4 +11,6 @@ router.get("/me", authMiddleware, controller.me);
 
 router.patch("/:id", authMiddleware, validate.update, controller.update);
 
+router.delete("/", authMiddleware, controller.delete);
+
 export default router;

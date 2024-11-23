@@ -7,6 +7,9 @@ export class Branch extends Model {
   declare name: string;
   declare maxCapacity: number;
   declare timeZone: string;
+  declare opening: string;
+  declare closing: string;
+  declare profitPerPerson: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -24,12 +27,24 @@ Branch.init(
     },
     maxCapacity: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    profitPerPerson: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
     timeZone: {
       type: DataTypes.STRING,
       allowNull: false,
       defaultValue: "America/Argentina/Buenos_Aires",
+    },
+    opening: {
+      type: DataTypes.TIME,
+      allowNull: false,
+    },
+    closing: {
+      type: DataTypes.TIME,
+      allowNull: false,
     },
   },
   {

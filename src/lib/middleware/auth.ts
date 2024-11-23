@@ -6,13 +6,11 @@ export interface AuthenticatedRequest extends Request {
   user: Partial<User>;
 }
 
-function validateToken(req) {
-  const token = parseToken(req);
+export function validateToken(token: string) {
   if (!token) {
-    throw new Error();
+    throw new Error("TOKEN_NOT_EXIST");
   }
-  const tokenData = decodeToken(token);
-  req.user = tokenData.data;
+  return decodeToken(token);
 }
 
 export async function authMiddleware(
@@ -21,7 +19,9 @@ export async function authMiddleware(
   next: NextFunction,
 ): Promise<void> {
   try {
-    validateToken(req);
+    const token = parseToken(req);
+    const tokenData = validateToken(token);
+    req.user = tokenData.data;
     next();
   } catch (error) {
     console.error(error);
@@ -36,10 +36,14 @@ export async function adminMiddleware(
   next: NextFunction,
 ): Promise<void> {
   try {
-    validateToken(req);
-    if (req.user.subRole !== "admin") {
+    const token = parseToken(req);
+    const tokenData = validateToken(token);
+
+    if (tokenData.data.subRole !== "admin") {
       throw new Error();
     }
+    req.user = tokenData.data;
+
     next();
   } catch (error) {
     console.error(error);

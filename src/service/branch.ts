@@ -4,6 +4,8 @@ import { Branch } from "../model";
 import { BranchRepositoryImpl } from "../repository/branch";
 import { UUID } from "crypto";
 import { UserBranchServiceImpl } from "./userBranch";
+import { DateTime } from "luxon";
+import { getLocalNow, getOpeningAndClosingTime } from "../utils/luxon";
 
 export class BranchServiceImpl implements BranchService {
   private repository = new BranchRepositoryImpl();
@@ -22,5 +24,26 @@ export class BranchServiceImpl implements BranchService {
     const branch = await this.repository.create(data, transaction);
     await this.userBranchService.create({ UserId, BranchId: branch.id }, transaction);
     return branch;
+  }
+
+  checkIfIsOpen(branch: Branch): boolean {
+    const now = getLocalNow(branch.timeZone);
+    const { openingTime, closingTime } = getOpeningAndClosingTime(branch);
+
+    const branchHoursPassMidnight = closingTime < openingTime;
+    const isAfterOpening = now >= openingTime;
+    const isBeforeClosing = now <= closingTime;
+
+    let isOpen;
+
+    if (branchHoursPassMidnight) {
+      // Caso: rango cruza la medianoche
+      isOpen = isAfterOpening || isBeforeClosing;
+    } else {
+      // Caso: rango dentro del mismo día
+      isOpen = isAfterOpening && isBeforeClosing;
+    }
+
+    return isOpen;
   }
 }

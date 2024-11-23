@@ -7,7 +7,7 @@ export enum EntranceTypeEnum {
   FREE = "free",
   QR = "qr",
   VIP = "vip",
-  GUEST = "guest",
+  GUEST = "guests",
 }
 
 class Concurrence extends Model {
@@ -19,6 +19,7 @@ class Concurrence extends Model {
   declare BranchId: UUID;
   declare entries: number;
   declare exits: number;
+  declare UserId: UUID;
   declare entranceType: EntranceTypeEnum;
 }
 
@@ -78,7 +79,7 @@ Concurrence.init(
     sequelize,
     modelName: "Concurrence",
     timestamps: false,
-    indexes: [{ fields: ["BranchId", "date", "hourIntervalStart"], unique: true }],
+    indexes: [{ fields: ["BranchId", "date", "hourIntervalStart", "UserId"], unique: true }],
   },
 );
 

@@ -21,12 +21,9 @@ export class User extends Model {
   declare role: UserRoleEnum;
   declare subRole: UserSubRoleEnum;
   declare Branches: Branch[];
-  declare branchName: string;
   declare BranchId: UUID;
   declare AuthId: UUID;
   declare Auth: Auth;
-  declare timeZone: string;
-  declare addBranch: BelongsToManyAddAssociationMixin<Branch, UUID>;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }

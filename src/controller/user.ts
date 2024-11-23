@@ -22,4 +22,12 @@ export class UserController {
     });
     res.status(201).json(responseHandler(true, "USER_UPDATED", result));
   });
+
+  delete = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const UserId = req.user.id;
+    const result = await sequelize.transaction(async (transaction) => {
+      return await this.service.delete(UserId, transaction);
+    });
+    res.status(201).json(responseHandler(true, "USER_UPDATED", result));
+  });
 }

@@ -57,4 +57,13 @@ export class UserBranchRepositoryImpl implements UserBranchRepository {
       throw new Error("NOT_DELETED");
     }
   }
+
+  async findAllByBranchId(BranchId: UUID, transaction?: Transaction): Promise<UserBranch[]> {
+    try {
+      return await UserBranch.findAll({ where: { BranchId }, transaction });
+    } catch (error) {
+      console.error(error);
+      throw new Error("NOT_FOUND");
+    }
+  }
 }

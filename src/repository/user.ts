@@ -1,5 +1,5 @@
 import { UUID } from "crypto";
-import { Transaction } from "sequelize";
+import { Op, Sequelize, Transaction } from "sequelize";
 import { UserRoleEnum } from "../model/user";
 import { UserRepository } from "../interface/user";
 import { Auth, Branch, User } from "../model";
@@ -38,6 +38,20 @@ export class UserRepositoryImpl implements UserRepository {
         throw new Error("NOT_FOUND");
       }
       throw new Error("Contraseña o email incorrectos");
+    }
+  }
+
+  async deleteUsersFromBranch(BranchId: UUID, transaction: Transaction) {
+    try {
+      return await User.destroy({
+        where: {
+          BranchId,
+        },
+        transaction,
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error(`NOT_DELETED`);
     }
   }
 

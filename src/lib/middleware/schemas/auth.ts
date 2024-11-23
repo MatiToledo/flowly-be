@@ -16,32 +16,39 @@ export class AuthValidate {
           email: string().email().required(),
           role: mixed<UserRoleEnum>().oneOf(Object.values(UserRoleEnum)).required(),
           subRole: mixed<UserSubRoleEnum>().oneOf(Object.values(UserSubRoleEnum)).required(),
-          timeZone: mixed().when(["role", "subRole"], {
+        }).required(),
+        Branch: object({
+          id: mixed().when(["User.role", "User.subRole"], {
             is: (role: UserRoleEnum, subRole: UserSubRoleEnum) =>
-              role === UserRoleEnum.PARTNER && subRole !== UserSubRoleEnum.PARTNER, // Si el role es PARTNER pero subRole no es PARTNER
+              role === UserRoleEnum.PARTNER && subRole === UserSubRoleEnum.PARTNER,
             then: () =>
-              string().required("TimeZone is required for PARTNER role and non-PARTNER subRole"), // Requiere branchName
-            otherwise: () => mixed().optional(), // En otro caso, branchName es opcional
+              string()
+                .uuid()
+                .required("Branch.id is required for PARTNER role and PARTNER subRole"),
+            otherwise: () => mixed().optional(),
           }),
-          BranchId: mixed().when(["role", "subRole"], {
+          name: mixed().when(["User.role", "User.subRole"], {
             is: (role: UserRoleEnum, subRole: UserSubRoleEnum) =>
-              role === UserRoleEnum.PARTNER && subRole === UserSubRoleEnum.PARTNER, // Si role es PARTNER y subRole es PARTNER
+              role === UserRoleEnum.PARTNER && subRole !== UserSubRoleEnum.PARTNER,
             then: () =>
-              string().uuid().required("BranchId is required for PARTNER role and PARTNER subRole"), // Requiere BranchId
-            otherwise: () => mixed().optional(), // En otro caso, BranchId es opcional
+              string().required("Branch.name is required for PARTNER role and non-PARTNER subRole"),
+            otherwise: () => mixed().optional(),
           }),
-          branchName: mixed().when(["role", "subRole"], {
+
+          timeZone: mixed().when(["User.role", "User.subRole"], {
             is: (role: UserRoleEnum, subRole: UserSubRoleEnum) =>
-              role === UserRoleEnum.PARTNER && subRole !== UserSubRoleEnum.PARTNER, // Si el role es PARTNER pero subRole no es PARTNER
+              role === UserRoleEnum.PARTNER && subRole !== UserSubRoleEnum.PARTNER,
             then: () =>
-              string().required("BranchName is required for PARTNER role and non-PARTNER subRole"), // Requiere branchName
-            otherwise: () => mixed().optional(), // En otro caso, branchName es opcional
+              string().required("TimeZone is required for PARTNER role and non-PARTNER subRole"),
+            otherwise: () => mixed().optional(),
           }),
         }).required(),
       }).required(),
     });
+
     await validateSchema(schema, req, next);
   }
+
   async logIn(req: Request, res: Response, next: NextFunction) {
     const schema = object({
       body: object({

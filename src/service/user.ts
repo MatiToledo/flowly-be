@@ -1,11 +1,25 @@
 import { UUID } from "crypto";
 import { Transaction } from "sequelize";
 import { UserService } from "../interface/user";
-import { User, UserRoleEnum } from "../model/user";
+import { User, UserRoleEnum, UserSubRoleEnum } from "../model/user";
 import { UserRepositoryImpl } from "../repository/user";
+import { UserBranchServiceImpl } from "./userBranch";
 
 export class UserServiceImpl implements UserService {
   private repository = new UserRepositoryImpl();
+  private userBranchService = new UserBranchServiceImpl();
+
+  async delete(UserId: UUID, transaction: Transaction): Promise<any> {
+    const userToDelete = await this.findById(UserId);
+
+    if (userToDelete.subRole === UserSubRoleEnum.ADMIN) {
+      for (const branch of userToDelete.Branches) {
+        await this.deleteUsersFromBranch(branch.id, UserId, transaction);
+        branch.destroy({ transaction });
+      }
+    }
+    await userToDelete.destroy({ transaction });
+  }
 
   async findByIdWithAuth(id: UUID): Promise<User> {
     return await this.repository.findByIdWithAuth(id);
@@ -27,6 +41,15 @@ export class UserServiceImpl implements UserService {
 
   async throwIfAlreadyExists(conditions: { email: string; role: UserRoleEnum }) {
     return await this.repository.throwIfAlreadyExists(conditions);
+  }
+
+  async deleteUsersFromBranch(BranchId: UUID, UserId: UUID, transaction: Transaction) {
+    const usersToDelete = await this.userBranchService.findAllByBranchId(BranchId, transaction);
+    const excludeMe = usersToDelete.filter((userBranch) => userBranch.UserId !== UserId);
+    for (const user of excludeMe) {
+      await this.repository.delete(user.UserId, transaction);
+      user.destroy({ transaction });
+    }
   }
 
   async findByCredentials(conditions: { email: string; role: UserRoleEnum }): Promise<User | null> {

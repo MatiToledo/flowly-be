@@ -20,4 +20,7 @@ Branch.hasMany(Message);
 Concurrence.belongsTo(Branch);
 Branch.hasMany(Concurrence);
 
+Concurrence.belongsTo(User);
+User.hasOne(Concurrence);
+
 export { Auth, User, Branch, UserBranch, Message, Concurrence };
