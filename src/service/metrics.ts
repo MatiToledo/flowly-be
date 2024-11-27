@@ -1,35 +1,48 @@
 import { UUID } from "crypto";
+import { DateTime } from "luxon";
 import { MetricsService } from "../interface/metrics";
-import { ConcurrenceRepositoryImpl } from "../repository/concurrence";
+import { Branch, Concurrence } from "../model";
+import { EntranceTypeEnum } from "../model/concurrence";
+import { getDateToQuery } from "../utils/luxon";
+import toMoney, { toCompactMoney } from "../utils/toMoney";
 import { BranchServiceImpl } from "./branch";
 import { ConcurrenceServiceImpl } from "./concurrence";
-import { Concurrence } from "../model";
-import { EntranceTypeEnum } from "../model/concurrence";
-import toMoney, { toCompactMoney } from "../utils/toMoney";
-import { DateTime } from "luxon";
 
 export class MetricsServiceImpl implements MetricsService {
-  private repository = new ConcurrenceRepositoryImpl();
   private concurrenceService = new ConcurrenceServiceImpl();
   private branchService = new BranchServiceImpl();
 
-  async getActualByBranchId(BranchId: UUID) {
+  async getByBranch(BranchId: UUID, queries: any) {
     const branch = await this.branchService.findById(BranchId);
-    const { opening, closing, timeZone, profitPerPerson } = branch;
-    let { date } = this.concurrenceService.getAdjustedDateForBranch(opening, closing, timeZone);
+    const { opening, closing, profitPerPerson } = branch;
+
+    let date = this.getDateToQuery(branch, queries.date);
     const isBranchOpen = this.branchService.checkIfIsOpen(branch);
     if (!isBranchOpen) {
       date = DateTime.fromISO(date).minus({ days: 1 }).toISODate();
     }
-    const concurrences = await this.repository.getActualByBranch(BranchId, date);
-    const sortedConcurrencesByHour = this.sortConcurrencesByHour(concurrences, opening, closing);
+    const concurrences = await this.concurrenceService.getByBranch(BranchId, date);
 
-    const entriesPerHour = await this.getEntriesPerHour(sortedConcurrencesByHour);
+    const sortedConcurrencesByHour = this.sortConcurrencesByHour(concurrences, opening, closing);
+    const compareVs = JSON.parse(queries.compareVs);
+
+    const entriesPerHour = await this.getEntriesPerHour(
+      sortedConcurrencesByHour,
+      compareVs["entriesPerHour"],
+      BranchId,
+      opening,
+      closing,
+    );
     const typeEntries = await this.getTypeEntries(sortedConcurrencesByHour);
     const earningsPerHour = await this.getEarningsPerHour(
       sortedConcurrencesByHour,
       profitPerPerson,
+      compareVs["earningsPerHour"],
+      BranchId,
+      opening,
+      closing,
     );
+
     return { entriesPerHour, typeEntries, earningsPerHour };
   }
 
@@ -57,25 +70,77 @@ export class MetricsServiceImpl implements MetricsService {
       metrics: metrics,
     };
   }
-  private async getEntriesPerHour(concurrences: Concurrence[]) {
-    const metrics = concurrences.map((concurrence) => ({
+  private async getEntriesPerHour(
+    concurrences: Concurrence[],
+    compareVs: string,
+    BranchId: UUID,
+    opening: string,
+    closing: string,
+  ) {
+    const metrics: any = concurrences.map((concurrence) => ({
       hour: concurrence.hourIntervalStart,
       total: concurrence.entries - concurrence.exits,
     }));
 
+    if (metrics.length === 1) {
+      metrics.unshift({
+        hour: metrics[0].hour - 1,
+        total: 0,
+      });
+    }
+
+    const total = metrics.reduce((acc, metric) => acc + metric.total, 0);
+
+    if (compareVs) {
+      console.log("compareVs: ", compareVs);
+      const concurrences = await this.concurrenceService.getByBranch(BranchId, compareVs);
+      const sortedConcurrences = this.sortConcurrencesByHour(concurrences, opening, closing);
+
+      for (const metric of sortedConcurrences) {
+        metrics.find((m) => m.hour === metric.hourIntervalStart).comparison =
+          metric.entries - metric.exits;
+      }
+    }
+
     return {
-      total: metrics.reduce((acc, metric) => acc + metric.total, 0),
-      metrics: metrics,
+      total,
+      metrics,
     };
   }
-  private async getEarningsPerHour(concurrences: Concurrence[], profitPerPerson: number) {
-    const metrics = concurrences.map((concurrence) => ({
+
+  private async getEarningsPerHour(
+    concurrences: Concurrence[],
+    profitPerPerson: number,
+    compareVs: string,
+    BranchId: UUID,
+    opening: string,
+    closing: string,
+  ) {
+    const metrics: any = concurrences.map((concurrence) => ({
       hour: concurrence.hourIntervalStart,
       total: (concurrence.entries - concurrence.exits) * profitPerPerson,
       label: toCompactMoney((concurrence.entries - concurrence.exits) * profitPerPerson),
     }));
 
+    if (metrics.length === 1) {
+      metrics.unshift({
+        hour: metrics[0].hour - 1,
+        total: 0,
+        label: "0k",
+      });
+    }
+
     const total = toMoney(metrics.reduce((acc, metric) => acc + metric.total, 0));
+    if (compareVs) {
+      console.log("compareVs: ", compareVs);
+      const concurrences = await this.concurrenceService.getByBranch(BranchId, compareVs);
+      const sortedConcurrences = this.sortConcurrencesByHour(concurrences, opening, closing);
+
+      for (const metric of sortedConcurrences) {
+        metrics.find((m) => m.hour === metric.hourIntervalStart).comparison =
+          (metric.entries - metric.exits) * profitPerPerson;
+      }
+    }
 
     return {
       total, // Formatea como moneda al final
@@ -95,5 +160,16 @@ export class MetricsServiceImpl implements MetricsService {
       .sort((a, b) => a.hourIntervalStart - b.hourIntervalStart);
 
     return beforeMidnight.concat(afterMidnight);
+  }
+
+  private getDateToQuery(branch: Branch, queryDate: string) {
+    const today = DateTime.now().toFormat("yyyy-MM-dd");
+    const formatQueryDate = DateTime.fromJSDate(new Date(queryDate)).toFormat("yyyy-MM-dd");
+
+    const date = Boolean(queryDate.trim() || formatQueryDate === today)
+      ? formatQueryDate
+      : getDateToQuery(branch).date;
+
+    return date;
   }
 }

@@ -6,6 +6,6 @@ const router = express.Router();
 const controller = new MessageController();
 // const validate = new BranchValidate();
 
-router.get("/:BranchId", authMiddleware, controller.findAndCountAllByBranchId);
+router.get("/branch/:BranchId", authMiddleware, controller.findAndCountAllByBranchId);
 
 export default router;

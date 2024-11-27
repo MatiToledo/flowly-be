@@ -5,6 +5,6 @@ import { MetricsController } from "../controller/metrics";
 const router = express.Router();
 const controller = new MetricsController();
 
-router.get("/:BranchId", adminMiddleware, controller.getActualByBranchId);
+router.get("/branch/:BranchId", adminMiddleware, controller.getByBranch);
 
 export default router;

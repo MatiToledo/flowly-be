@@ -31,6 +31,16 @@ export class ConcurrenceRepositoryImpl implements ConcurrenceRepository {
       throw new Error(`NOT_FOUND`);
     }
   }
+  async getByBranch(BranchId: UUID, date: string): Promise<Concurrence[]> {
+    try {
+      return await Concurrence.findAll({
+        where: { BranchId, date },
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error(`NOT_FOUND`);
+    }
+  }
   async getActualByBranchAndUser(
     BranchId: UUID,
     UserId: UUID,
@@ -51,7 +61,6 @@ export class ConcurrenceRepositoryImpl implements ConcurrenceRepository {
     transaction?: Transaction,
   ): Promise<Concurrence> {
     try {
-      console.log("conditions: ", conditions);
       const [stat] = await Concurrence.findOrCreate({
         where: conditions,
         defaults: { entries: 0, exits: 0 },

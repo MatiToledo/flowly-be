@@ -4,48 +4,37 @@ import { Concurrence } from "../model";
 import { ConcurrenceRepositoryImpl } from "../repository/concurrence";
 import { BranchServiceImpl } from "./branch";
 import { UUID } from "crypto";
-import { getDateToQuery, getLocalISODate } from "../utils/luxon";
+import { getDateToQuery, getLocalISODate, getLocalNow } from "../utils/luxon";
 export class ConcurrenceServiceImpl implements ConcurrenceService {
   private repository = new ConcurrenceRepositoryImpl();
   private branchService = new BranchServiceImpl();
 
-  async getActualByBranchId(BranchId: UUID, UserId: UUID) {
+  async getByBranch(BranchId: UUID, date: string) {
+    return await this.repository.getByBranch(BranchId, date);
+  }
+  async getActualByBranch(BranchId: UUID) {
     const branch = await this.branchService.findById(BranchId);
-    // const isBranchOpen = this.branchService.checkIfIsOpen(branch);
 
-    // if (!isBranchOpen) {
-    //   return { total: 0, entries: 0, exits: 0, totalConcurrence: 0 };
-    // }
+    const { date } = getDateToQuery(branch);
 
-    const { date, hourIntervalStart } = getDateToQuery(branch);
-    console.log("hourIntervalStart: ", hourIntervalStart);
+    const concurrences = await this.repository.getActualByBranch(BranchId, date);
+
+    return await this.moldedActual(concurrences, BranchId, date);
+  }
+
+  async getActualByBranchAndUser(BranchId: UUID, UserId: UUID) {
+    const branch = await this.branchService.findById(BranchId);
+
+    const { date } = getDateToQuery(branch);
     console.log("date: ", date);
-    // console.log("date: ", date);
 
-    // const concurrences = await this.repository.getActualByBranchAndUser(BranchId, UserId, date);
-    // console.log("concurrences: ", concurrences);
-    // const totalConcurrence = await this.repository.getTotalByBranchId(BranchId, date);
-
-    // return concurrences.reduce(
-    //   (acc, concurrence) => {
-    //     acc.total += concurrence.entries - concurrence.exits;
-    //     acc.entries += concurrence.entries;
-    //     acc.exits += concurrence.exits;
-    //     return acc;
-    //   },
-    //   {
-    //     total: 0,
-    //     entries: 0,
-    //     exits: 0,
-    //     totalConcurrence,
-    //   },
-    // );
+    const concurrences = await this.repository.getActualByBranchAndUser(BranchId, UserId, date);
+    return await this.moldedActual(concurrences, BranchId, date);
   }
 
   async update(data: Partial<Concurrence>): Promise<any> {
     const { BranchId, type, entranceType, UserId } = data;
     const branch = await this.branchService.findById(BranchId);
-    const { opening, closing, timeZone } = branch;
 
     const isBranchOpen = this.branchService.checkIfIsOpen(branch);
 
@@ -53,8 +42,7 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
       throw new Error("La sucursal está cerrada");
     }
 
-    const { date, hourIntervalStart } = this.getAdjustedDateForBranch(opening, closing, timeZone);
-    console.log("hourIntervalStart: ", hourIntervalStart);
+    const { date, hourIntervalStart } = getDateToQuery(branch);
 
     const concurrence = await this.repository.findOrCreate({
       BranchId,
@@ -77,44 +65,57 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
 
     await concurrence.save();
 
-    const totalBranch = await this.repository.getTotalByBranchId(BranchId, date);
+    const [userConcurrences, branchConcurrences] = await Promise.all([
+      this.repository.getActualByBranchAndUser(BranchId, UserId, date),
+      this.repository.getActualByBranch(BranchId, date),
+    ]);
 
-    return { ...concurrence.dataValues, totalBranch };
+    const totalUser = this.calculateTotals(userConcurrences);
+    const totalBranch = this.calculateTotals(branchConcurrences);
+    return {
+      user: {
+        ...totalUser,
+        UserId,
+        totalBranch: totalBranch.total,
+      },
+      partner: {
+        ...totalBranch,
+        totalBranch: totalBranch.total,
+      },
+    };
   }
 
-  getAdjustedDateForBranch(
-    opening: string,
-    closing: string,
-    timeZone: string,
-  ): { date: string; hourIntervalStart: number } {
-    const nowUtc = DateTime.utc();
-    const localTime = nowUtc.setZone(timeZone);
-    const hourIntervalStart = localTime.hour;
-    console.log("hourIntervalStart: ", hourIntervalStart);
+  private calculateTotals(concurrences: Concurrence[]): {
+    entries: number;
+    exits: number;
+    total: number;
+  } {
+    return concurrences.reduce(
+      (acc, { entries, exits }) => {
+        acc.entries += entries;
+        acc.exits += exits;
+        acc.total += entries - exits;
+        return acc;
+      },
+      { entries: 0, exits: 0, total: 0 },
+    );
+  }
 
-    const openingHour = parseInt(opening.split(":")[0], 10);
-    const closingHour = parseInt(closing.split(":")[0], 10);
-
-    let date = localTime.toISODate();
-
-    const branchHoursPassMidnight = closingHour < openingHour;
-    // Si el horario de cierre es menor que el horario de apertura, significa que cruza medianoche
-    if (branchHoursPassMidnight) {
-      console.log("PASA MEDIANOCHE");
-
-      // Ajustamos si estamos antes de la apertura o después del cierre
-      if (hourIntervalStart < openingHour && hourIntervalStart >= closingHour) {
-        console.log("ES MEDIANOCHE");
-        date = localTime.minus({ days: 1 }).toISODate(); // Ajustamos al día anterior
-      }
-    } else {
-      console.log("NO PASA MEDIANOCHE");
-      // Caso normal donde el horario no cruza medianoche
-      if (hourIntervalStart < openingHour || hourIntervalStart >= closingHour) {
-        date = localTime.minus({ days: 1 }).toISODate(); // Ajustamos al día anterior
-      }
-    }
-
-    return { date, hourIntervalStart };
+  private async moldedActual(concurrences: Concurrence[], BranchId: UUID, date: string) {
+    const totalBranch = await this.repository.getTotalByBranchId(BranchId, date);
+    return concurrences.reduce(
+      (acc, concurrence) => {
+        acc.total += concurrence.entries - concurrence.exits;
+        acc.entries += concurrence.entries;
+        acc.exits += concurrence.exits;
+        return acc;
+      },
+      {
+        total: 0,
+        entries: 0,
+        exits: 0,
+        totalBranch,
+      },
+    );
   }
 }

@@ -9,12 +9,10 @@ export function getLocalISODate(timeZone: string) {
 export function getLocalNow(timeZone: string) {
   const simulate = process.env.SIMULATE_HOUR;
   if (simulate) {
+    console.log("simulate: ", simulate);
     const simulatedDateTime = DateTime.fromISO(simulate, { setZone: true });
-
     return simulatedDateTime.setZone(timeZone);
   }
-
-  console.log("simulate: ", simulate);
   return DateTime.now().setZone(timeZone);
 }
 

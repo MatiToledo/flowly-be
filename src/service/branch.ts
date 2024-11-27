@@ -16,11 +16,15 @@ export class BranchServiceImpl implements BranchService {
   }
 
   async update(id: UUID, data: Partial<Branch>, transaction?: Transaction): Promise<Branch> {
+    data.closing = DateTime.fromISO(data.closing).toFormat("HH:mm");
+    data.opening = DateTime.fromISO(data.opening).toFormat("HH:mm");
     const { affectedCount, affectedRows } = await this.repository.update(id, data, transaction);
     return affectedRows[0];
   }
 
   async create(data: Partial<Branch>, UserId: UUID, transaction?: Transaction): Promise<Branch> {
+    data.closing = DateTime.fromISO(data.closing).toFormat("HH:mm");
+    data.opening = DateTime.fromISO(data.opening).toFormat("HH:mm");
     const branch = await this.repository.create(data, transaction);
     await this.userBranchService.create({ UserId, BranchId: branch.id }, transaction);
     return branch;

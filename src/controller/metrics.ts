@@ -8,9 +8,9 @@ import { MetricsServiceImpl } from "../service/metrics";
 export class MetricsController {
   private service = new MetricsServiceImpl();
 
-  getActualByBranchId = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+  getByBranch = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { BranchId } = req.params;
-    const result = await this.service.getActualByBranchId(BranchId as UUID);
+    const result = await this.service.getByBranch(BranchId as UUID, req.query);
     res.status(201).json(responseHandler(true, "USER_FOUND", result));
   });
 }

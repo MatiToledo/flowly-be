@@ -3,8 +3,12 @@ import { Concurrence, Message } from "../model";
 import { MessageServiceImpl } from "../service/message";
 import { validateToken } from "../lib/middleware/auth";
 import { ConcurrenceServiceImpl } from "../service/concurrence";
+import { UserServiceImpl } from "../service/user";
+import { BranchServiceImpl } from "../service/branch";
 
 const messageService = new MessageServiceImpl();
+const userService = new UserServiceImpl();
+const branchService = new BranchServiceImpl();
 const concurrenceService = new ConcurrenceServiceImpl();
 
 export default function initSocketIO(io: any) {
@@ -21,12 +25,16 @@ export default function initSocketIO(io: any) {
 
   io.on("connection", (socket) => {
     socket.on("joinBranch", async (BranchId: UUID) => {
-      console.log("Usuario conectado a: ", BranchId);
-      socket.join(BranchId);
+      const user = await userService.findById(socket.UserId);
+      const branch = await branchService.findById(BranchId);
+      console.log(`${user.fullName} conectado a: `, branch.name);
+      socket.join(branch.id);
     });
 
-    socket.on("leaveBranch", (BranchId: UUID) => {
-      console.log("Usuario desconectado de: ", BranchId);
+    socket.on("leaveBranch", async (BranchId: UUID) => {
+      const user = await userService.findById(socket.UserId);
+      const branch = await branchService.findById(BranchId);
+      console.log(`${user.fullName} desconectado a: `, branch.name);
       socket.leave(BranchId);
     });
 
@@ -44,7 +52,8 @@ export default function initSocketIO(io: any) {
           concurrence = JSON.parse(concurrence);
         }
         const result = await concurrenceService.update({ ...concurrence, UserId: socket.UserId });
-        io.to(concurrence.BranchId).emit("concurrence", result);
+        io.to(concurrence.BranchId).emit("concurrence", result.user);
+        io.to(concurrence.BranchId).emit("concurrence_partner", result.partner);
       } catch (error) {
         socket.emit("error", error.message);
       }

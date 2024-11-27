@@ -24,7 +24,7 @@ export class ConcurrenceValidate {
 
     await validateSchema(schema, req, next);
   }
-  async getActualByBranchId(req: Request, res: Response, next: NextFunction) {
+  async getActualByBranch(req: Request, res: Response, next: NextFunction) {
     const schema = object({
       params: object({
         BranchId: string().uuid().required(),

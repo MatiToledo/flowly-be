@@ -13,7 +13,7 @@ import initSocketIO from "./socketIO";
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: "*", // Permitir el origen adecuado (modifica esto si es necesario)
     methods: ["GET", "POST"],
