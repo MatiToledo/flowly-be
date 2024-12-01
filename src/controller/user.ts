@@ -12,7 +12,7 @@ export class UserController {
   me = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.user;
     const result = await this.service.findById(id);
-    res.status(201).json(responseHandler(true, "USER_FOUND", result));
+    res.status(200).json(responseHandler(true, "USER_FOUND", result));
   });
 
   update = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
@@ -28,6 +28,6 @@ export class UserController {
     const result = await sequelize.transaction(async (transaction) => {
       return await this.service.delete(UserId, transaction);
     });
-    res.status(201).json(responseHandler(true, "USER_UPDATED", result));
+    res.status(201).json(responseHandler(true, "USER_DELETED", result));
   });
 }

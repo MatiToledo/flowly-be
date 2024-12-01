@@ -13,12 +13,12 @@ export class BranchController {
     const result = sequelize.transaction(async (transaction) => {
       return await this.service.create(req.body, UserId, transaction);
     });
-    res.status(201).json(responseHandler(true, "USER_FOUND", result));
+    res.status(201).json(responseHandler(true, "BRANCH_CREATED", result));
   });
 
   update = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
     const result = await this.service.update(id as UUID, req.body);
-    res.status(201).json(responseHandler(true, "USER_FOUND", result));
+    res.status(201).json(responseHandler(true, "BRANCH_UPDATED", result));
   });
 }

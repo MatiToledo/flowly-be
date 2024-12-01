@@ -48,3 +48,23 @@ export function getDateToQuery(branch: Branch) {
   }
   return { date, hourIntervalStart };
 }
+export function getDateToQueryMonitoring(branch: Branch) {
+  const { opening, closing, timeZone } = branch;
+  const now = getLocalNow(timeZone);
+  const hourIntervalStart = now.hour + (now.minute < 30 ? 0.0 : 0.5);
+  const openingHour = parseInt(opening.split(":")[0], 10);
+  const closingHour = parseInt(closing.split(":")[0], 10);
+
+  let date = getLocalISODate(timeZone);
+
+  const branchHoursPassMidnight = closingHour < openingHour;
+
+  if (branchHoursPassMidnight) {
+    const isAfterPassNight = hourIntervalStart >= 0 && hourIntervalStart <= closingHour;
+
+    if (isAfterPassNight) {
+      date = now.minus({ days: 1 }).toISODate();
+    }
+  }
+  return { date, hourIntervalStart };
+}

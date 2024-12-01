@@ -10,7 +10,7 @@ export class AuthRepositoryImpl implements AuthRepository {
       });
     } catch (error) {
       console.error(error);
-      throw new Error(`NOT_CREATED`);
+      throw new Error(`AUTH_NOT_CREATED`);
     }
   }
 
@@ -28,12 +28,8 @@ export class AuthRepositoryImpl implements AuthRepository {
       return { affectedCount, affectedRows };
     } catch (error) {
       console.error(error);
-      throw new Error(`NOT_UPDATED`);
+      throw new Error(`AUTH_NOT_UPDATED`);
     }
-  }
-
-  async findById(id: UUID, transaction?: Transaction): Promise<Auth> {
-    throw new Error("Method not implemented.");
   }
 
   async delete(id: UUID, transaction?: Transaction): Promise<boolean> {
@@ -49,7 +45,7 @@ export class AuthRepositoryImpl implements AuthRepository {
       }
     } catch (error) {
       console.error(error);
-      throw new Error("NOT_DELETED");
+      throw new Error("AUTH_NOT_DELETED");
     }
   }
 }

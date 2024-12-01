@@ -5,6 +5,7 @@ import { UserBranch } from "./userBranch";
 import { Message } from "./message";
 import Concurrence from "./concurrence";
 import { Alert } from "./alerts";
+import Monitoring from "./monitoring";
 
 Auth.hasOne(User, { onDelete: "CASCADE" });
 User.belongsTo(Auth, { onDelete: "CASCADE" });
@@ -29,5 +30,8 @@ User.hasMany(Alert);
 
 Alert.belongsTo(Branch);
 Branch.hasMany(Alert);
+
+Monitoring.belongsTo(Branch);
+Branch.hasMany(Monitoring);
 
 export { Auth, User, Branch, UserBranch, Message, Concurrence, Alert };

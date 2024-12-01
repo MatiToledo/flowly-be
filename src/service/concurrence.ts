@@ -1,18 +1,17 @@
-import { DateTime } from "luxon";
-import { ConcurrenceService } from "../interface/concurrence";
+import { UUID } from "crypto";
+import { ConcurrenceActualResponse, ConcurrenceService } from "../interface/concurrence";
 import { Concurrence } from "../model";
 import { ConcurrenceRepositoryImpl } from "../repository/concurrence";
+import { getDateToQuery } from "../utils/luxon";
 import { BranchServiceImpl } from "./branch";
-import { UUID } from "crypto";
-import { getDateToQuery, getLocalISODate, getLocalNow } from "../utils/luxon";
 export class ConcurrenceServiceImpl implements ConcurrenceService {
   private repository = new ConcurrenceRepositoryImpl();
   private branchService = new BranchServiceImpl();
 
-  async getByBranch(BranchId: UUID, date: string) {
+  async getByBranch(BranchId: UUID, date: string): Promise<Concurrence[]> {
     return await this.repository.getByBranch(BranchId, date);
   }
-  async getActualByBranch(BranchId: UUID) {
+  async getActualByBranch(BranchId: UUID): Promise<ConcurrenceActualResponse> {
     const branch = await this.branchService.findById(BranchId);
 
     const { date } = getDateToQuery(branch);
@@ -22,11 +21,10 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
     return await this.moldedActual(concurrences, BranchId, date);
   }
 
-  async getActualByBranchAndUser(BranchId: UUID, UserId: UUID) {
+  async getActualByBranchAndUser(BranchId: UUID, UserId: UUID): Promise<ConcurrenceActualResponse> {
     const branch = await this.branchService.findById(BranchId);
 
     const { date } = getDateToQuery(branch);
-    console.log("date: ", date);
 
     const concurrences = await this.repository.getActualByBranchAndUser(BranchId, UserId, date);
     return await this.moldedActual(concurrences, BranchId, date);
@@ -101,7 +99,11 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
     );
   }
 
-  private async moldedActual(concurrences: Concurrence[], BranchId: UUID, date: string) {
+  private async moldedActual(
+    concurrences: Concurrence[],
+    BranchId: UUID,
+    date: string,
+  ): Promise<ConcurrenceActualResponse> {
     const totalBranch = await this.repository.getTotalByBranchId(BranchId, date);
     return concurrences.reduce(
       (acc, concurrence) => {

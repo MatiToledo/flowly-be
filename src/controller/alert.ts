@@ -18,6 +18,6 @@ export class AlertController {
   findByBranch = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { BranchId } = req.params;
     const result = await this.service.findByBranch(BranchId as UUID);
-    res.status(201).json(responseHandler(true, "ALERT_CREATED", result));
+    res.status(200).json(responseHandler(true, "ALERT_FOUND_BY_BRANCH", result));
   });
 }

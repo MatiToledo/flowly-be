@@ -9,7 +9,7 @@ export class UserServiceImpl implements UserService {
   private repository = new UserRepositoryImpl();
   private userBranchService = new UserBranchServiceImpl();
 
-  async delete(UserId: UUID, transaction: Transaction): Promise<any> {
+  async delete(UserId: UUID, transaction: Transaction): Promise<void> {
     const userToDelete = await this.findById(UserId);
 
     if (userToDelete.subRole === UserSubRoleEnum.ADMIN) {
@@ -39,8 +39,8 @@ export class UserServiceImpl implements UserService {
     // return updatedUser;
   }
 
-  async throwIfAlreadyExists(conditions: { email: string; role: UserRoleEnum }) {
-    return await this.repository.throwIfAlreadyExists(conditions);
+  async throwIfAlreadyExists(conditions: { email: string; role: UserRoleEnum }): Promise<void> {
+    await this.repository.throwIfAlreadyExists(conditions);
   }
 
   async deleteUsersFromBranch(BranchId: UUID, UserId: UUID, transaction: Transaction) {
@@ -56,7 +56,7 @@ export class UserServiceImpl implements UserService {
     return await this.repository.findByCredentials(conditions);
   }
 
-  async create(data: Partial<User>, transaction: Transaction) {
+  async create(data: Partial<User>, transaction: Transaction): Promise<User> {
     return await this.repository.create(data, transaction);
   }
 }

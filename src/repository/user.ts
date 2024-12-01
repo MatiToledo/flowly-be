@@ -16,9 +16,9 @@ export class UserRepositoryImpl implements UserRepository {
       }
     } catch (error) {
       if (error.message) {
-        throw new Error("NOT_FOUND");
+        throw new Error("USER_NOT_FOUND");
       }
-      throw new Error("Ya existe un usuario con ese email");
+      throw new Error("USER_EMAIL_ALREADY_EXISTS");
     }
   }
 
@@ -29,21 +29,20 @@ export class UserRepositoryImpl implements UserRepository {
         include: [Auth],
       });
       if (!exists) {
-        const error = new Error();
-        throw error;
+        throw new Error();
       }
       return exists;
     } catch (error) {
       if (error.message) {
-        throw new Error("NOT_FOUND");
+        throw new Error("USER_NOT_FOUND");
       }
-      throw new Error("Contraseña o email incorrectos");
+      throw new Error("USER_CREDENTIALS_NOT_FOUND");
     }
   }
 
-  async deleteUsersFromBranch(BranchId: UUID, transaction: Transaction) {
+  async deleteUsersFromBranch(BranchId: UUID, transaction: Transaction): Promise<void> {
     try {
-      return await User.destroy({
+      await User.destroy({
         where: {
           BranchId,
         },
@@ -51,7 +50,7 @@ export class UserRepositoryImpl implements UserRepository {
       });
     } catch (error) {
       console.error(error);
-      throw new Error(`NOT_DELETED`);
+      throw new Error(`USER_NOT_DELETED`);
     }
   }
 
@@ -62,7 +61,7 @@ export class UserRepositoryImpl implements UserRepository {
       });
     } catch (error) {
       console.error(error);
-      throw new Error(`NOT_CREATED`);
+      throw new Error(`USER_NOT_CREATED`);
     }
   }
 
@@ -81,7 +80,7 @@ export class UserRepositoryImpl implements UserRepository {
       return { affectedCount, affectedRows };
     } catch (error) {
       console.error(error);
-      throw new Error(`NOT_UPDATED`);
+      throw new Error(`USER_NOT_UPDATED`);
     }
   }
 
@@ -90,7 +89,7 @@ export class UserRepositoryImpl implements UserRepository {
       return await User.findByPk(id, { include: [Auth], transaction });
     } catch (error) {
       console.error(error);
-      throw new Error("NOT_FOUND");
+      throw new Error("USER_NOT_FOUND");
     }
   }
   async findById(id: UUID, transaction?: Transaction): Promise<User> {
@@ -101,7 +100,7 @@ export class UserRepositoryImpl implements UserRepository {
       });
     } catch (error) {
       console.error(error);
-      throw new Error("NOT_FOUND");
+      throw new Error("USER_NOT_FOUND");
     }
   }
 
@@ -118,7 +117,7 @@ export class UserRepositoryImpl implements UserRepository {
       }
     } catch (error) {
       console.error(error);
-      throw new Error("NOT_DELETED");
+      throw new Error("USER_NOT_DELETED");
     }
   }
 }

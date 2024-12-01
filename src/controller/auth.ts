@@ -18,12 +18,12 @@ export class AuthController {
 
   logIn = asyncHandler(async (req: Request, res: Response) => {
     const result = await this.service.logIn(req.body);
-    res.status(201).json(responseHandler(true, "LOG_IN_SUCCESS", result));
+    res.status(200).json(responseHandler(true, "LOG_IN_SUCCESS", result));
   });
 
   updatePassword = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.user;
     const result = await this.service.updatePassword(id as UUID, req.body);
-    res.status(201).json(responseHandler(true, "LOG_IN_SUCCESS", result));
+    res.status(201).json(responseHandler(true, "PASSWORD_UPDATED", result));
   });
 }

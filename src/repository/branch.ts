@@ -10,51 +10,33 @@ export class BranchRepositoryImpl implements BranchRepository {
       });
     } catch (error) {
       console.error(error);
-      throw new Error(`NOT_CREATED`);
+      throw new Error(`BRANCH_NOT_CREATED`);
     }
   }
 
   async update(
     id: UUID,
     data: Partial<Branch>,
-    transaction: Transaction,
   ): Promise<{ affectedCount: number; affectedRows: Branch[] }> {
     try {
       const [affectedCount, affectedRows] = await Branch.update(data, {
         where: { id },
-        transaction,
         returning: true,
       });
       return { affectedCount, affectedRows };
     } catch (error) {
       console.error(error);
-      throw new Error(`NOT_UPDATED`);
+      throw new Error(`BRANCH_NOT_UPDATED`);
     }
   }
 
   async findById(id: UUID, transaction?: Transaction): Promise<Branch> {
     try {
-      return await Branch.findByPk(id, { transaction });
+      const branch = await Branch.findByPk(id, { transaction });
+      return branch;
     } catch (error) {
       console.error(error);
-      throw new Error("NOT_FOUND");
-    }
-  }
-
-  async delete(id: UUID, transaction?: Transaction): Promise<boolean> {
-    try {
-      const res = await Branch.destroy({
-        where: { id },
-        transaction,
-      });
-      if (res > 0) {
-        return true;
-      } else {
-        throw new Error();
-      }
-    } catch (error) {
-      console.error(error);
-      throw new Error("NOT_DELETED");
+      throw new Error("BRANCH_NOT_FOUND");
     }
   }
 }

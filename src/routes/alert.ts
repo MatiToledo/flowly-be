@@ -9,6 +9,6 @@ const validate = new AlertValidate();
 
 router.post("/", authMiddleware, validate.create, controller.create);
 
-router.get("/branch/:BranchId", adminMiddleware, validate.findByBranch, controller.findByBranch);
+router.get("/branch/:BranchId", authMiddleware, validate.findByBranch, controller.findByBranch);
 
 export default router;

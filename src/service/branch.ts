@@ -12,13 +12,13 @@ export class BranchServiceImpl implements BranchService {
   private userBranchService = new UserBranchServiceImpl();
 
   async findById(id: UUID, transaction?: Transaction): Promise<Branch> {
-    return await this.repository.findById(id);
+    return await this.repository.findById(id, transaction);
   }
 
-  async update(id: UUID, data: Partial<Branch>, transaction?: Transaction): Promise<Branch> {
+  async update(id: UUID, data: Partial<Branch>): Promise<Branch> {
     data.closing = DateTime.fromISO(data.closing).toFormat("HH:mm");
     data.opening = DateTime.fromISO(data.opening).toFormat("HH:mm");
-    const { affectedCount, affectedRows } = await this.repository.update(id, data, transaction);
+    const { affectedRows } = await this.repository.update(id, data);
     return affectedRows[0];
   }
 

@@ -12,4 +12,8 @@ export class UserBranchServiceImpl implements UserBranchService {
   async findAllByBranchId(BranchId: UUID, transaction: Transaction) {
     return await this.repository.findAllByBranchId(BranchId, transaction);
   }
+
+  async findAllByUserId(UserId: UUID, transaction: Transaction) {
+    return await this.repository.findAllByUserId(UserId, transaction);
+  }
 }

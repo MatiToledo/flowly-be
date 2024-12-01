@@ -29,7 +29,7 @@ export class MessageRepositoryImpl implements MessageRepository {
       });
     } catch (error) {
       console.error(error);
-      throw new Error(`NOT_FOUND`);
+      throw new Error(`MESSAGES_NOT_FOUND`);
     }
   }
 
@@ -40,25 +40,7 @@ export class MessageRepositoryImpl implements MessageRepository {
       });
     } catch (error) {
       console.error(error);
-      throw new Error(`NOT_CREATED`);
-    }
-  }
-
-  async update(
-    id: UUID,
-    data: Partial<Message>,
-    transaction: Transaction,
-  ): Promise<{ affectedCount: number; affectedRows: Message[] }> {
-    try {
-      const [affectedCount, affectedRows] = await Message.update(data, {
-        where: { id },
-        transaction,
-        returning: true,
-      });
-      return { affectedCount, affectedRows };
-    } catch (error) {
-      console.error(error);
-      throw new Error(`NOT_UPDATED`);
+      throw new Error(`MESSAGE_NOT_CREATED`);
     }
   }
 
@@ -81,24 +63,7 @@ export class MessageRepositoryImpl implements MessageRepository {
       });
     } catch (error) {
       console.error(error);
-      throw new Error("NOT_FOUND");
-    }
-  }
-
-  async delete(id: UUID, transaction?: Transaction): Promise<boolean> {
-    try {
-      const res = await Message.destroy({
-        where: { id },
-        transaction,
-      });
-      if (res > 0) {
-        return true;
-      } else {
-        throw new Error();
-      }
-    } catch (error) {
-      console.error(error);
-      throw new Error("NOT_DELETED");
+      throw new Error("MESSAGE_NOT_FOUND");
     }
   }
 }

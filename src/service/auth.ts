@@ -1,24 +1,22 @@
+import { UUID } from "crypto";
+import { DateTime } from "luxon";
 import { Transaction } from "sequelize";
-import { Auth, Branch, User } from "../model";
+import { Auth, User } from "../model";
 import { AuthRepositoryImpl } from "../repository/auth";
 import { generateToken } from "../utils/jwt";
 import { hashPassword, verifyPassword } from "../utils/password";
-import { AuthService, LogInBody } from "./../interface/auth";
+import { AuthService, LogInBody, LogInResponse, LogUpBody } from "./../interface/auth";
 import { BranchServiceImpl } from "./branch";
 import { UserServiceImpl } from "./user";
 import { UserBranchServiceImpl } from "./userBranch";
-import { UUID } from "crypto";
-import { DateTime } from "luxon";
 
 export class AuthServiceImpl implements AuthService {
   private repository = new AuthRepositoryImpl();
   private userService = new UserServiceImpl();
   private branchService = new BranchServiceImpl();
   private userBranchService = new UserBranchServiceImpl();
-  async logUp(
-    data: { Auth: Partial<Auth>; User: Partial<User>; Branch: Partial<Branch> },
-    transaction: Transaction,
-  ): Promise<User> {
+
+  async logUp(data: LogUpBody, transaction: Transaction): Promise<User> {
     await this.userService.throwIfAlreadyExists({
       email: data.User.email,
       role: data.User.role,
@@ -29,6 +27,7 @@ export class AuthServiceImpl implements AuthService {
 
     const user = await this.userService.create({ ...data.User, AuthId: auth.id }, transaction);
 
+    // TODO refactor
     if (data.Branch.name) {
       data.Branch.closing = DateTime.fromISO(data.Branch.closing).toFormat("HH:mm");
       data.Branch.opening = DateTime.fromISO(data.Branch.opening).toFormat("HH:mm");
@@ -43,7 +42,8 @@ export class AuthServiceImpl implements AuthService {
 
     return user;
   }
-  async logIn(data: LogInBody): Promise<any> {
+
+  async logIn(data: LogInBody): Promise<LogInResponse> {
     const user = await this.userService.findByCredentials({
       email: data.email,
       role: data.role,

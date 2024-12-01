@@ -25,16 +25,13 @@ export default function initSocketIO(io: any) {
 
   io.on("connection", (socket) => {
     socket.on("joinBranch", async (BranchId: UUID) => {
-      const user = await userService.findById(socket.UserId);
-      const branch = await branchService.findById(BranchId);
-      console.log(`${user.fullName} conectado a: `, branch.name);
-      socket.join(branch.id);
+      console.log("SOCKET BranchId: ", BranchId);
+      console.log(`Usuario conectado`);
+      socket.join(BranchId);
     });
 
     socket.on("leaveBranch", async (BranchId: UUID) => {
-      const user = await userService.findById(socket.UserId);
-      const branch = await branchService.findById(BranchId);
-      console.log(`${user.fullName} desconectado a: `, branch.name);
+      console.log(`Usuario desconectado`);
       socket.leave(BranchId);
     });
 

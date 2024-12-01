@@ -11,6 +11,6 @@ export class MetricsController {
   getByBranch = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
     const { BranchId } = req.params;
     const result = await this.service.getByBranch(BranchId as UUID, req.query);
-    res.status(201).json(responseHandler(true, "USER_FOUND", result));
+    res.status(200).json(responseHandler(true, "METRICS_BY_BRANCH_FOUND", result));
   });
 }

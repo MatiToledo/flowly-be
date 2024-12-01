@@ -5,6 +5,7 @@ import BranchRoute from "./branch";
 import MessageRoute from "./message";
 import ConcurrenceRoute from "./concurrence";
 import AlertRoute from "./alert";
+import MonitoringRoute from "./monitoring";
 import MetricsRoute from "./metrics";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.use("/branch", BranchRoute);
 router.use("/message", MessageRoute);
 router.use("/concurrence", ConcurrenceRoute);
 router.use("/alert", AlertRoute);
+router.use("/monitoring", MonitoringRoute);
 router.use("/metrics", MetricsRoute);
 
 export default router;

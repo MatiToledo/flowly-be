@@ -17,6 +17,6 @@ export class MessageController {
       UserId,
       req.query as PaginationQueries,
     );
-    res.status(201).json(responseHandler(true, "USER_FOUND", result));
+    res.status(200).json(responseHandler(true, "MESSAGES_BY_BRANCH_FOUND", result));
   });
 }
