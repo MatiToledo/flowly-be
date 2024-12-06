@@ -8,6 +8,7 @@ export class BranchValidate {
       body: object({
         name: string().required(),
         maxCapacity: number().required(),
+        profitPerPerson: number().required(),
         opening: string().required(),
         closing: string().required(),
       }).required(),
@@ -24,6 +25,7 @@ export class BranchValidate {
       body: object({
         name: string().optional(),
         maxCapacity: number().optional(),
+        profitPerPerson: number().optional(),
         opening: string().optional(),
         closing: string().optional(),
       }).required(),

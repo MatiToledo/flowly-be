@@ -32,8 +32,7 @@ export class BranchRepositoryImpl implements BranchRepository {
 
   async findById(id: UUID, transaction?: Transaction): Promise<Branch> {
     try {
-      const branch = await Branch.findByPk(id, { transaction });
-      return branch;
+      return await Branch.findByPk(id, { transaction });
     } catch (error) {
       console.error(error);
       throw new Error("BRANCH_NOT_FOUND");

@@ -4,6 +4,7 @@ import { UserService } from "../interface/user";
 import { User, UserRoleEnum, UserSubRoleEnum } from "../model/user";
 import { UserRepositoryImpl } from "../repository/user";
 import { UserBranchServiceImpl } from "./userBranch";
+import { AuthServiceImpl } from "./auth";
 
 export class UserServiceImpl implements UserService {
   private repository = new UserRepositoryImpl();
@@ -29,14 +30,8 @@ export class UserServiceImpl implements UserService {
   }
 
   async update(id: UUID, data: Partial<User>, transaction: Transaction) {
-    // if (data.email) {
-    //   await this.repository.findByCredentials({ email: data.email, role: data.role }, "throw");
-    // }
-    // const {
-    //   affectedCount,
-    //   affectedRows: [updatedUser],
-    // } = await this.repository.update(id, data, transaction);
-    // return updatedUser;
+    const { affectedRows } = await this.repository.update(id, data, transaction);
+    return affectedRows[0];
   }
 
   async throwIfAlreadyExists(conditions: { email: string; role: UserRoleEnum }): Promise<void> {

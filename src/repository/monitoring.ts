@@ -36,4 +36,15 @@ export class MonitoringRepositoryImpl implements MonitoringRepository {
       throw new Error(`MONITORINGS_NOT_FOUND`);
     }
   }
+  async findLatest(BranchId: UUID): Promise<Monitoring> {
+    try {
+      return await Monitoring.findOne({
+        where: { BranchId },
+        order: [["createdAt", "DESC"]],
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error(`MONITORINGS_NOT_FOUND`);
+    }
+  }
 }

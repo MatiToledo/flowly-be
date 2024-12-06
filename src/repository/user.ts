@@ -76,7 +76,9 @@ export class UserRepositoryImpl implements UserRepository {
         transaction,
         returning: true,
       });
-      await Auth.update({ email: data.email }, { where: { id: affectedRows[0].AuthId } });
+      if (data.email) {
+        await Auth.update({ email: data.email }, { where: { id: affectedRows[0].AuthId } });
+      }
       return { affectedCount, affectedRows };
     } catch (error) {
       console.error(error);

@@ -34,7 +34,42 @@ export class AuthValidate {
               string().required("Branch.name is required for PARTNER role and non-PARTNER subRole"),
             otherwise: () => mixed().optional(),
           }),
-
+          maxCapacity: mixed().when(["User.role", "User.subRole"], {
+            is: (role: UserRoleEnum, subRole: UserSubRoleEnum) =>
+              role === UserRoleEnum.PARTNER && subRole !== UserSubRoleEnum.PARTNER,
+            then: () =>
+              number().required(
+                "Branch.maxCapacity is required for PARTNER role and non-PARTNER subRole",
+              ),
+            otherwise: () => number().optional(),
+          }),
+          profitPerPerson: mixed().when(["User.role", "User.subRole"], {
+            is: (role: UserRoleEnum, subRole: UserSubRoleEnum) =>
+              role === UserRoleEnum.PARTNER && subRole !== UserSubRoleEnum.PARTNER,
+            then: () =>
+              number().required(
+                "Branch.maxCapacity is required for PARTNER role and non-PARTNER subRole",
+              ),
+            otherwise: () => number().optional(),
+          }),
+          opening: mixed().when(["User.role", "User.subRole"], {
+            is: (role: UserRoleEnum, subRole: UserSubRoleEnum) =>
+              role === UserRoleEnum.PARTNER && subRole !== UserSubRoleEnum.PARTNER,
+            then: () =>
+              string().required(
+                "Branch.maxCapacity is required for PARTNER role and non-PARTNER subRole",
+              ),
+            otherwise: () => string().optional(),
+          }),
+          closing: mixed().when(["User.role", "User.subRole"], {
+            is: (role: UserRoleEnum, subRole: UserSubRoleEnum) =>
+              role === UserRoleEnum.PARTNER && subRole !== UserSubRoleEnum.PARTNER,
+            then: () =>
+              string().required(
+                "Branch.maxCapacity is required for PARTNER role and non-PARTNER subRole",
+              ),
+            otherwise: () => string().optional(),
+          }),
           timeZone: mixed().when(["User.role", "User.subRole"], {
             is: (role: UserRoleEnum, subRole: UserSubRoleEnum) =>
               role === UserRoleEnum.PARTNER && subRole !== UserSubRoleEnum.PARTNER,

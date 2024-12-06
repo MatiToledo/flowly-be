@@ -16,4 +16,6 @@ router.get(
   controller.checkIfAlreadyExistsByBranch,
 );
 
+router.get("/branch/:BranchId/latest", authMiddleware, validate.findLatest, controller.findLatest);
+
 export default router;

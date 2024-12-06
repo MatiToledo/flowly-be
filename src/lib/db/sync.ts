@@ -8,6 +8,7 @@ import { BranchServiceImpl } from "../../service/branch";
 import { Concurrence } from "../../model";
 import { DateTime } from "luxon";
 import Monitoring from "../../model/monitoring";
+import { Alert, AlertTypeEnum } from "../../model/alerts";
 const authService = new AuthServiceImpl();
 const userBranchService = new UserBranchServiceImpl();
 const branchService = new BranchServiceImpl();
@@ -150,6 +151,13 @@ async function createDevData() {
           { transaction },
         );
       }
+    }
+    for (const alert of Object.values(AlertTypeEnum)) {
+      Alert.create({
+        type: alert,
+        BranchId: branch.id,
+        UserId: guardDoor.id,
+      });
     }
 
     await transaction.commit();

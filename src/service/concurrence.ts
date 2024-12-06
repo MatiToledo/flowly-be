@@ -12,7 +12,9 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
     return await this.repository.getByBranch(BranchId, date);
   }
   async getActualByBranch(BranchId: UUID): Promise<ConcurrenceActualResponse> {
+    console.log("BranchId: ", BranchId);
     const branch = await this.branchService.findById(BranchId);
+    console.log("branch: ", branch);
 
     const { date } = getDateToQuery(branch);
 

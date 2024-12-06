@@ -46,6 +46,10 @@ export class MonitoringServiceImpl implements MonitoringService {
     return await this.repository.getByBranch(BranchId, date);
   }
 
+  async findLatest(BranchId: UUID): Promise<Monitoring> {
+    return await this.repository.findLatest(BranchId);
+  }
+
   private getNextTimeToUpdate(timeZone: string) {
     const now = getLocalNow(timeZone);
     const minutes = now.minute;

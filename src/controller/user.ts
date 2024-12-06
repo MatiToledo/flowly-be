@@ -24,9 +24,9 @@ export class UserController {
   });
 
   delete = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const UserId = req.user.id;
+    const UserId = req.params.id;
     const result = await sequelize.transaction(async (transaction) => {
-      return await this.service.delete(UserId, transaction);
+      return await this.service.delete(UserId as UUID, transaction);
     });
     res.status(201).json(responseHandler(true, "USER_DELETED", result));
   });

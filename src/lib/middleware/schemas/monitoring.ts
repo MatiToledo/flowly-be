@@ -24,4 +24,13 @@ export class MonitoringValidate {
 
     await validateSchema(schema, req, next);
   }
+  async findLatest(req: Request, res: Response, next: NextFunction) {
+    const schema = object({
+      params: object({
+        BranchId: string().uuid().required(),
+      }).required(),
+    });
+
+    await validateSchema(schema, req, next);
+  }
 }

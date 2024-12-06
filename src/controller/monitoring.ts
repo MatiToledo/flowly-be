@@ -17,4 +17,9 @@ export class MonitoringController {
     const result = await this.service.checkIfAlreadyExistsByBranch(BranchId as UUID);
     res.status(201).json(responseHandler(true, "MONITORING_CREATED", result));
   });
+  findLatest = asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
+    const { BranchId } = req.params;
+    const result = await this.service.findLatest(BranchId as UUID);
+    res.status(201).json(responseHandler(true, "MONITORING_FOUND", result));
+  });
 }
