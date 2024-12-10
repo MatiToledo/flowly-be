@@ -5,7 +5,6 @@ const testingEnv = process.env.NODE_ENV === "test";
 console.log("process.env.NODE_ENV: ", process.env.NODE_ENV);
 
 const prodEnv = process.env.NODE_ENV === "production" || process.env.NODE_ENV === "PRODUCTION";
-console.log("prodEnv: ", prodEnv);
 
 const devConfig: Options = {
   dialect: "postgres",

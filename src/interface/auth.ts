@@ -31,6 +31,7 @@ export interface LogInResponse {
   token: string;
   role: UserRoleEnum;
   subRole: UserSubRoleEnum;
+  BranchId: UUID;
 }
 
 export interface LogUpBody {

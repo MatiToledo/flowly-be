@@ -25,8 +25,10 @@ export class MetricsServiceImpl implements MetricsService {
       date = DateTime.fromISO(date).minus({ days: 1 }).toISODate();
     }
     const concurrences = await this.concurrenceService.getByBranch(BranchId, date);
+    console.log("concurrences as: ", concurrences.length);
     const monitorings = await this.monitoringService.getByBranch(BranchId, date);
     const sortedConcurrencesByHour = this.sorMetricsByHour(concurrences, opening, closing);
+    console.log("sortedConcurrencesByHour: ", sortedConcurrencesByHour.length);
     const sortedMonitoringsByHour = this.sorMetricsByHour(monitorings, opening, closing);
     const metrics = await this.createMetrics(
       sortedConcurrencesByHour,
@@ -243,10 +245,16 @@ export class MetricsServiceImpl implements MetricsService {
     const closingHour = parseInt(closing.split(":")[0], 10);
 
     const beforeMidnight = array
-      .filter((metric) => metric.hourIntervalStart >= openingHour)
+      .filter((metric) => metric.hourIntervalStart >= openingHour && metric.hourIntervalStart < 24)
       .sort((a, b) => a.hourIntervalStart - b.hourIntervalStart);
+
     const afterMidnight = array
-      .filter((metric) => metric.hourIntervalStart >= 0 && metric.hourIntervalStart <= closingHour)
+      .filter(
+        (metric) =>
+          metric.hourIntervalStart >= 0 &&
+          metric.hourIntervalStart < closingHour &&
+          metric.hourIntervalStart < openingHour,
+      )
       .sort((a, b) => a.hourIntervalStart - b.hourIntervalStart);
 
     return beforeMidnight.concat(afterMidnight);
@@ -265,7 +273,6 @@ export class MetricsServiceImpl implements MetricsService {
     const minutes = hourIntervalStart % 1 === 0.5 ? 30 : 0;
     const time = DateTime.fromObject({ hour: hours, minute: minutes });
 
-    // Formatear el tiempo en formato HH:mm
     return time.toFormat("HH:mm");
   }
 }

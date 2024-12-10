@@ -18,7 +18,7 @@ const alter = args.includes("--alter");
 
 if (force) {
   sequelize.sync({ force: true }).then(async () => {
-    await createDevData();
+    // await createDevData();
     console.log("Database synced with force");
   });
 } else if (alter) {

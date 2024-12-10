@@ -12,9 +12,7 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
     return await this.repository.getByBranch(BranchId, date);
   }
   async getActualByBranch(BranchId: UUID): Promise<ConcurrenceActualResponse> {
-    console.log("BranchId: ", BranchId);
     const branch = await this.branchService.findById(BranchId);
-    console.log("branch: ", branch);
 
     const { date } = getDateToQuery(branch);
 
@@ -57,7 +55,7 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
       concurrence.exits += 1;
     }
 
-    if (entranceType) {
+    if (entranceType && type === "entry") {
       concurrence[entranceType] += 1;
     } else {
       concurrence["paid"] += 1;
@@ -72,7 +70,6 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
 
     const totalUser = this.calculateTotals(userConcurrences);
     const totalBranch = this.calculateTotals(branchConcurrences);
-    console.log("totalBranch: ", totalBranch);
     return {
       user: {
         ...totalUser,

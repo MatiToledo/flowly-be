@@ -50,8 +50,13 @@ export class AuthServiceImpl implements AuthService {
     });
     const storedHash = user.Auth.password;
     verifyPassword(data.password, storedHash, "logIn");
-    const token = generateToken({ id: user.id, role: user.role, subRole: user.subRole });
-    return { token, role: user.role, subRole: user.subRole };
+    const token = generateToken({
+      id: user.id,
+      role: user.role,
+      subRole: user.subRole,
+      BranchId: user.Branches[0].id,
+    });
+    return { token, role: user.role, subRole: user.subRole, BranchId: user.Branches[0].id };
   }
 
   async updatePassword(id: UUID, data: Partial<Auth>): Promise<void> {

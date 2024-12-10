@@ -26,7 +26,7 @@ export class UserRepositoryImpl implements UserRepository {
     try {
       const exists = await User.findOne({
         where: { ...conditions },
-        include: [Auth],
+        include: [Auth, Branch],
       });
       if (!exists) {
         throw new Error();

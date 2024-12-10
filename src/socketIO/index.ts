@@ -14,10 +14,8 @@ const concurrenceService = new ConcurrenceServiceImpl();
 export default function initSocketIO(io: any) {
   io.use((socket, next) => {
     const token = socket.handshake.headers.token;
-    console.log("token: ", token);
     try {
       const tokenData = validateToken(token);
-      console.log("tokenData: ", tokenData);
       socket.UserId = tokenData.data.id;
       next();
     } catch (error) {
@@ -27,9 +25,12 @@ export default function initSocketIO(io: any) {
 
   io.on("connection", (socket) => {
     socket.on("joinBranch", async (BranchId: UUID) => {
-      console.log("SOCKET BranchId: ", BranchId);
-      console.log(`Usuario conectado`);
-      socket.join(BranchId);
+      const branch = await branchService.findById(BranchId);
+      const user = await userService.findById(socket.UserId);
+      console.log(`${user.fullName} conectado a ${branch.name}`);
+      if (branch && user) {
+        socket.join(BranchId);
+      }
     });
 
     socket.on("leaveBranch", async (BranchId: UUID) => {
@@ -57,7 +58,10 @@ export default function initSocketIO(io: any) {
         socket.emit("error", error.message);
       }
     });
-    socket.on("disconnect", () => {
+    socket.on("disconnect", (reason) => {
+      if (reason === "io server disconnect") {
+        socket.connect();
+      }
       console.log("Usuario desconectado");
     });
   });
