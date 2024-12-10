@@ -155,8 +155,8 @@ export class MetricsServiceImpl implements MetricsService {
 
     const metrics: any = concurrences.map((concurrence) => ({
       hour: concurrence.hourIntervalStart,
-      total: (concurrence.entries - concurrence.exits) * profitPerPerson,
-      label: toCompactMoney((concurrence.entries - concurrence.exits) * profitPerPerson),
+      total: concurrence.entries * profitPerPerson,
+      label: toCompactMoney(concurrence.entries * profitPerPerson),
     }));
 
     if (metrics.length === 1) {
@@ -177,9 +177,9 @@ export class MetricsServiceImpl implements MetricsService {
 
       for (const metric of sortedConcurrences) {
         metrics.find((m) => m.hour === metric.hourIntervalStart).comparison =
-          (metric.entries - metric.exits) * profitPerPerson;
+          metric.entries * profitPerPerson;
         metrics.find((m) => m.hour === metric.hourIntervalStart).comparisonLabel = toCompactMoney(
-          (metric.entries - metric.exits) * profitPerPerson,
+          metric.entries * profitPerPerson,
         );
       }
       for (const missing of missingMetrics) {

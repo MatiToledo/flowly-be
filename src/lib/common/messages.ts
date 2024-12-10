@@ -38,7 +38,7 @@ export const MESSAGES_DICTIONARY = {
   USER_DELETED: "Usuario eliminado con éxito.",
   USER_NOT_FOUND: "Error al consultar el usuario.",
   USER_EMAIL_ALREADY_EXISTS: "Ya existe un usuario con ese email.",
-  USER_CREDENTIALS_NOT_FOUND: "No existe un usuario con esos credenciales.",
+  USER_CREDENTIALS_NOT_FOUND: "No existe un usuario con esas credenciales.",
   USER_NOT_DELETED: "Error al eliminar el usuario.",
   USER_NOT_CREATED: "Error al crear el usuario.",
   USER_NOT_UPDATED: "Error al actualizar el usuario.",

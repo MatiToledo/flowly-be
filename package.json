@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon --exec ts-node ./src/app.ts",
+    "dev": "cross-env nodemon --exec ts-node ./src/app.ts",
     "build": "rimraf ./build && tsc --skipLibCheck",
     "sync:force": "ts-node ./src/lib/db/sync.ts --force",
     "sync:alter": "ts-node ./src/lib/db/sync.ts --alter",
@@ -29,6 +29,7 @@
     "morgan": "^1.10.0",
     "parse-bearer-token": "^1.0.1",
     "pg": "^8.13.0",
+    "rimraf": "^6.0.1",
     "sequelize": "^6.37.3",
     "socket.io": "^4.8.1",
     "yup": "^1.4.0"

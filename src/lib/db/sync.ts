@@ -23,7 +23,7 @@ if (force) {
   });
 } else if (alter) {
   sequelize.sync({ alter: true }).then(async () => {
-    await createDevData();
+    // await createDevData();
     console.log("Database synced with alter");
   });
 }
@@ -94,10 +94,13 @@ async function createDevData() {
     );
     const concurrencesHours = [21, 22, 23, 0, 1, 2, 3, 4];
     const monitoringsHours = [21, 21.5, 22, 22.5, 23, 23.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5];
+
+    // Lógica para ajustar las fechas
     const dates = [
       DateTime.now().toFormat("yyyy-MM-dd"),
       DateTime.now().minus({ days: 1 }).toFormat("yyyy-MM-dd"),
     ];
+
     for (const hour of concurrencesHours) {
       for (const date of dates) {
         const entries = Math.floor(Math.random() * 100) + 1;

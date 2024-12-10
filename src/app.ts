@@ -24,6 +24,15 @@ app.use(cors());
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "UP",
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.use(helmet());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use("/v1", V1Router);

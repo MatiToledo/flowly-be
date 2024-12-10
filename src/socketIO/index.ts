@@ -14,8 +14,10 @@ const concurrenceService = new ConcurrenceServiceImpl();
 export default function initSocketIO(io: any) {
   io.use((socket, next) => {
     const token = socket.handshake.headers.token;
+    console.log("token: ", token);
     try {
       const tokenData = validateToken(token);
+      console.log("tokenData: ", tokenData);
       socket.UserId = tokenData.data.id;
       next();
     } catch (error) {

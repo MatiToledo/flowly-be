@@ -1,0 +1,18 @@
+version: "3.8"
+volumes:
+  database:
+    driver: local
+services:
+  postgres:
+    image: postgres:13-alpine
+    restart: unless-stopped
+    command: ["postgres", "-c", "log_statement=all"]
+    env_file: .env
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=PUL
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - 8008:5432

@@ -72,6 +72,7 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
 
     const totalUser = this.calculateTotals(userConcurrences);
     const totalBranch = this.calculateTotals(branchConcurrences);
+    console.log("totalBranch: ", totalBranch);
     return {
       user: {
         ...totalUser,
