@@ -25,10 +25,8 @@ export class MetricsServiceImpl implements MetricsService {
       date = DateTime.fromISO(date).minus({ days: 1 }).toISODate();
     }
     const concurrences = await this.concurrenceService.getByBranch(BranchId, date);
-    console.log("concurrences as: ", concurrences.length);
     const monitorings = await this.monitoringService.getByBranch(BranchId, date);
     const sortedConcurrencesByHour = this.sorMetricsByHour(concurrences, opening, closing);
-    console.log("sortedConcurrencesByHour: ", sortedConcurrencesByHour.length);
     const sortedMonitoringsByHour = this.sorMetricsByHour(monitorings, opening, closing);
     const metrics = await this.createMetrics(
       sortedConcurrencesByHour,

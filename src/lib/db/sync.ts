@@ -18,7 +18,7 @@ const alter = args.includes("--alter");
 
 if (force) {
   sequelize.sync({ force: true }).then(async () => {
-    // await createDevData();
+    await createDevData();
     console.log("Database synced with force");
   });
 } else if (alter) {
@@ -97,8 +97,9 @@ async function createDevData() {
 
     // Lógica para ajustar las fechas
     const dates = [
-      DateTime.now().toFormat("yyyy-MM-dd"),
       DateTime.now().minus({ days: 1 }).toFormat("yyyy-MM-dd"),
+      DateTime.now().minus({ days: 2 }).toFormat("yyyy-MM-dd"),
+      DateTime.now().minus({ days: 3 }).toFormat("yyyy-MM-dd"),
     ];
 
     for (const hour of concurrencesHours) {

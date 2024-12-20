@@ -58,6 +58,7 @@ export default function initSocketIO(io: any) {
         socket.emit("error", error.message);
       }
     });
+
     socket.on("disconnect", (reason) => {
       if (reason === "io server disconnect") {
         socket.connect();

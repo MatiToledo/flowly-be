@@ -51,14 +51,13 @@ export class ConcurrenceServiceImpl implements ConcurrenceService {
 
     if (type === "entry") {
       concurrence.entries += 1;
+      if (entranceType) {
+        concurrence[entranceType] += 1;
+      } else {
+        concurrence["paid"] += 1;
+      }
     } else if (type === "exit") {
       concurrence.exits += 1;
-    }
-
-    if (entranceType && type === "entry") {
-      concurrence[entranceType] += 1;
-    } else {
-      concurrence["paid"] += 1;
     }
 
     await concurrence.save();
